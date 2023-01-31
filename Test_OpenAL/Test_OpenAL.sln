@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32630.192
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test_OpenAL", "Test_OpenAL\Test_OpenAL.vcxproj", "{A60A73A3-0327-464C-A8C0-8381E1632301}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A60A73A3-0327-464C-A8C0-8381E1632301}.Debug|x64.ActiveCfg = Debug|x64
+		{A60A73A3-0327-464C-A8C0-8381E1632301}.Debug|x64.Build.0 = Debug|x64
+		{A60A73A3-0327-464C-A8C0-8381E1632301}.Debug|x86.ActiveCfg = Debug|Win32
+		{A60A73A3-0327-464C-A8C0-8381E1632301}.Debug|x86.Build.0 = Debug|Win32
+		{A60A73A3-0327-464C-A8C0-8381E1632301}.Release|x64.ActiveCfg = Release|x64
+		{A60A73A3-0327-464C-A8C0-8381E1632301}.Release|x64.Build.0 = Release|x64
+		{A60A73A3-0327-464C-A8C0-8381E1632301}.Release|x86.ActiveCfg = Release|Win32
+		{A60A73A3-0327-464C-A8C0-8381E1632301}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {89CCB662-EC21-4531-B3EF-82D3E19430D9}
+	EndGlobalSection
+EndGlobal
