@@ -45,7 +45,7 @@ int main()
 
 	alec(alListenerfv(AL_ORIENTATION, forwardAndUpVectors));
 
-	std::string name = "";
+	std::string name = "H:\\Solutions\\OpenAL-soft test\\Test\\Test_OpenAL\\Sounds\\random1.wav";
 	std::string extension = name.substr(name.length() - 3, 3);
 	ALuint buffer = 0;
 	if (extension == "wav") {
@@ -54,20 +54,30 @@ int main()
 		alGenBuffers(1, &buffer);
 		alBufferData(buffer, s->GetOALFormat(), s->GetData(), s->GetSize(), (ALsizei)s->GetFrequency());
 	}
+	std::cout << "Hello World!\n";
 
 	ALuint monoSource;
 
 	alec(alGenSources(1, &monoSource));
 	alec(alSource3f(monoSource, AL_POSITION, 1.0f, 0.0f, 0.0f));
 	alec(alSource3f(monoSource, AL_VELOCITY, 0.0f, 0.0f, 0.0f));
-	alec(alSourcef(monoSource, AL_PITCH, 1.0f));
+	alec(alSourcef(monoSource, AL_PITCH, 0.5f));
 	alec(alSourcef(monoSource, AL_GAIN, 1.0f));
 	alec(alSourcei(monoSource, AL_LOOPING, AL_FALSE));
 	alec(alSourcei(monoSource, AL_BUFFER, buffer));
 
+	alec(alSourcePlay(monoSource));
+	ALint sourceState;
+	alec(alGetSourcei(monoSource, AL_SOURCE_STATE, &sourceState));
+	while (sourceState == AL_PLAYING) {
+		alec(alGetSourcei(monoSource, AL_SOURCE_STATE, &sourceState));
+	}
+	
 
+	std::cout<< "Played!\n";
+	alec(alDeleteSources(1, &monoSource));
+	alec(alDeleteBuffers(1, &buffer));
 
-	std::cout<< "Hello World!\n";
 	alcMakeContextCurrent(nullptr);
 	alcDestroyContext(context);
 	alcCloseDevice(device);
