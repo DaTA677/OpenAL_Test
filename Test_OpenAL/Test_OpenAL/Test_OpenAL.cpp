@@ -45,7 +45,7 @@ int main()
 
 	alec(alListenerfv(AL_ORIENTATION, forwardAndUpVectors));
 
-	std::string name = "H:\\Solutions\\OpenAL-soft test\\Test\\Test_OpenAL\\Sounds\\random21.wav";
+	std::string name = "H:\\Solutions\\OpenAL-soft test\\Test\\Test_OpenAL\\Sounds\\coin21.wav";
 	std::string extension = name.substr(name.length() - 3, 3);
 	ALuint buffer = 0;
 	if (extension == "wav") {
@@ -90,7 +90,7 @@ int main()
 	alec(alSourcei(monoSource1, AL_LOOPING, AL_FALSE));
 	alec(alSourcei(monoSource1, AL_BUFFER, buffer1));
 
-	//alec(alSourcePlay(monoSource1));
+	alec(alSourcePlay(monoSource1));
 	
 	ALint sourceState;
 	alec(alGetSourcei(monoSource, AL_SOURCE_STATE, &sourceState));

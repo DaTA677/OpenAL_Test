@@ -31,10 +31,10 @@ void	Sound::LoadFromWAV(string filename) {
 
 	string		 chunkName;
 	unsigned int chunkSize;
-
+	int count = 0;
 	while (!file.eof()) {
 		LoadWAVChunkInfo(file, chunkName, chunkSize);
-
+		count++;
 		if (chunkName == "RIFF") {
 			file.seekg(4, ios_base::cur);
 			//char waveString[4];
@@ -53,7 +53,7 @@ void	Sound::LoadFromWAV(string filename) {
 			size = chunkSize;
 			data = new char[size];
 			file.read((char*)data, chunkSize);
-			break;
+			//break;
 			/*
 			In release mode, ifstream and / or something else were combining
 			to make this function see another 'data' chunk, filled with
@@ -65,6 +65,7 @@ void	Sound::LoadFromWAV(string filename) {
 		else {
 			file.seekg(chunkSize, ios_base::cur);
 		}
+		if (count > 100) break;
 	}
 
 	length = (float)size / (channels * freqRate * (bitRate / 8.0f)) * 1000.0f;
@@ -125,5 +126,5 @@ ALenum Sound::GetOALFormat() {
 	else if (GetBitRate() == 8) {
 		return GetChannels() == 2 ? AL_FORMAT_STEREO8 : AL_FORMAT_MONO8;
 	}
-	return AL_FORMAT_MONO8;
+	return AL_FORMAT_STEREO16;
 }
