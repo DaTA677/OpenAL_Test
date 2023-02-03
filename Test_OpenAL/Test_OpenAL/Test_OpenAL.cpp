@@ -90,7 +90,7 @@ int main()
 	alec(alSourcei(monoSource1, AL_LOOPING, AL_FALSE));
 	alec(alSourcei(monoSource1, AL_BUFFER, buffer1));
 
-	alec(alSourcePlay(monoSource1));
+	//alec(alSourcePlay(monoSource1));
 	
 	ALint sourceState;
 	alec(alGetSourcei(monoSource, AL_SOURCE_STATE, &sourceState));
