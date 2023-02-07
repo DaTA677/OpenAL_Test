@@ -1,87 +1,45 @@
 #include "Sound.h"
+#include "SoundErrorReport.h"
 //#include "OggSound.h"
 
-map<string, Sound*> Sound::sounds;
+
+
+
+map<string, Sound*> Sound::sSounds;
+
 
 Sound::Sound() {
-	streaming = false;		//Part 2
-	bitRate = 0;
-	freqRate = 0;
-	length = 0;
-	data = NULL;
-	buffer = 0;
+	mStreaming = false;		//Part 2
+	mBuffer = 0;
 }
 
 Sound::~Sound(void) {
-	delete data;
-	alDeleteBuffers(1, &buffer);
+	alDeleteBuffers(1, &mBuffer);
 }
 
-double	Sound::GetLength() {
-	return length;
-}
 
 void	Sound::LoadFromWAV(string filename) {
-	ifstream	file(filename.c_str(), ios::in | ios::binary);
 
-	if (!file) {
-		cout << "Failed to load WAV file '" << filename << "'!" << endl;
+	drwav_int16* pSampleData = drwav_open_file_and_read_pcm_frames_s16(filename.c_str(), &mWavData.channels, &mWavData.sampleRate, &mWavData.totalPCMFrameCount, nullptr);
+	if (pSampleData == NULL) {
+		std::cerr << "failed to load audio file" << std::endl;
+		drwav_free(pSampleData, nullptr); //todo use raii to clean this up
 		return;
 	}
-
-	string		 chunkName;
-	unsigned int chunkSize;
-	int count = 0;
-	while (!file.eof()) {
-		LoadWAVChunkInfo(file, chunkName, chunkSize);
-		count++;
-		if (chunkName == "RIFF") {
-			file.seekg(4, ios_base::cur);
-			//char waveString[4];
-			//file.read((char*)&waveString,4);
-		}
-		else if (chunkName == "fmt ") {
-			FMTCHUNK fmt;
-
-			file.read((char*)&fmt, sizeof(FMTCHUNK));
-
-			bitRate = fmt.samp;
-			freqRate = (float)fmt.srate;
-			channels = fmt.channels;
-		}
-		else if (chunkName == "data") {
-			size = chunkSize;
-			data = new char[size];
-			file.read((char*)data, chunkSize);
-			//break;
-			/*
-			In release mode, ifstream and / or something else were combining
-			to make this function see another 'data' chunk, filled with
-			nonsense data, breaking WAV loading. Easiest way to get around it
-			was to simply break after loading the data chunk. This *should*
-			be fine for any WAV file you find / use. Not fun to debug.
-			*/
-		}
-		else {
-			file.seekg(chunkSize, ios_base::cur);
-		}
-		if (count > 100) break;
+	if (mWavData.getTotalSamples() > drwav_uint64(std::numeric_limits<size_t>::max()))
+	{
+		std::cerr << "too much data in file for 32bit addressed vector" << std::endl;
+		drwav_free(pSampleData, nullptr);
+		return;
 	}
+	mWavData.pcmData.resize(size_t(mWavData.getTotalSamples()));
+	std::memcpy(mWavData.pcmData.data(), pSampleData, mWavData.pcmData.size() * /*twobytes_in_s16*/2);
+	drwav_free(pSampleData, nullptr);
 
-	length = (float)size / (channels * freqRate * (bitRate / 8.0f)) * 1000.0f;
 
-	file.close();
 }
 
-void	Sound::LoadWAVChunkInfo(ifstream& file, string& name, unsigned int& size) {
-	char chunk[4];
-	file.read((char*)&chunk, 4);
-	file.read((char*)&size, 4);
-
-	name = string(chunk, 4);
-}
-
-void	Sound::AddSound(string name) {
+ALuint Sound::AddSound(string name) {
 	Sound* s = GetSound(name);
 
 	if (!s) {
@@ -90,8 +48,8 @@ void	Sound::AddSound(string name) {
 		if (extension == "wav") {
 			s = new Sound();
 			s->LoadFromWAV(name);
-			alGenBuffers(1, &s->buffer);
-			alBufferData(s->buffer, s->GetOALFormat(), s->GetData(), s->GetSize(), (ALsizei)s->GetFrequency());
+			alec(alGenBuffers(1, &s->mBuffer));
+			alec(alBufferData(s->mBuffer, s->mWavData.channels > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, s->mWavData.pcmData.data(), s->mWavData.pcmData.size() * 2 /*two bytes per sample*/, s->mWavData.sampleRate));
 		}
 		/*else if (extension == "ogg") {
 			OggSound* ogg = new OggSound();
@@ -104,27 +62,18 @@ void	Sound::AddSound(string name) {
 			cout << "Incompatible file extension '" << extension << "'!" << endl;
 		}
 
-		sounds.insert(make_pair(name, s));
+		sSounds.insert(make_pair(name, s));
 	}
+	return s->mBuffer;
 }
 
 Sound* Sound::GetSound(string name) {
-	map<string, Sound*>::iterator s = sounds.find(name);
-	return (s != sounds.end() ? s->second : NULL);
+	map<string, Sound*>::iterator s = sSounds.find(name);
+	return (s != sSounds.end() ? s->second : NULL);
 }
 
 void	Sound::DeleteSounds() {
-	for (map<string, Sound*>::iterator i = sounds.begin(); i != sounds.end(); ++i) {
+	for (map<string, Sound*>::iterator i = sSounds.begin(); i != sSounds.end(); ++i) {
 		delete i->second;
 	}
-}
-
-ALenum Sound::GetOALFormat() {
-	if (GetBitRate() == 16) {
-		return GetChannels() == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
-	}
-	else if (GetBitRate() == 8) {
-		return GetChannels() == 2 ? AL_FORMAT_STEREO8 : AL_FORMAT_MONO8;
-	}
-	return AL_FORMAT_STEREO16;
 }

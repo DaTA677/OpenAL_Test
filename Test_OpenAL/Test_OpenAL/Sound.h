@@ -7,64 +7,54 @@
 #include <iostream>
 #include <fstream>
 #include <AL/al.h>
+#include <vector>
+#include <dr_lib/dr_wav.h>
 
 using namespace std;
 
-typedef unsigned long DWORD;
+struct ReadWavData {
+	unsigned int channels = 0;
+	unsigned int sampleRate = 0;
+	drwav_uint64 totalPCMFrameCount = 0;
+	std::vector<uint16_t> pcmData;
 
-struct FMTCHUNK {
-	short format;
-	short channels;
-	DWORD srate;
-	DWORD bps;
-	short balign;
-	short samp;
+	drwav_uint64 getTotalSamples() { return totalPCMFrameCount * channels; }
+
 };
+
 
 class Sound {
 	friend class SoundManager;
 public:
-	char* GetData() { return data; }
-	int				GetBitRate() { return bitRate; }
-	float			GetFrequency() { return freqRate; }
-	int				GetChannels() { return channels; }
-	int				GetSize() { return size; }
-	ALuint			GetBuffer() { return buffer; }
-	bool			IsStreaming() { return streaming; }		//Part 2
+	
+	bool			IsStreaming() { return mStreaming; }		//Part 2
 	virtual double	StreamData(ALuint	buffer, double timeLeft) { return 0.0f; }							//Part 2
 
-	ALenum			GetOALFormat();
-	double			GetLength();
+	ReadWavData getWavData()const { return mWavData; }
 
-	static void		AddSound(string n);
+	static ALuint	AddSound(string n);
 	static Sound* GetSound(string name);
 
 	static void		DeleteSounds();
 
 	void			LoadFromWAV(string filename);
-	void			LoadWAVChunkInfo(ifstream& file, string& name, unsigned int& size);
-	Sound();
-	virtual ~Sound(void);
+
 
 protected:
-	/*Sound();
-	virtual ~Sound(void);*/
+	Sound();
+	virtual ~Sound(void);
 
 	//void			LoadFromWAV(string filename);
 	//void			LoadWAVChunkInfo(ifstream& file, string& name, unsigned int& size);
 
-	char* data;
-	ALuint			buffer;
+	ALuint			mBuffer;
 
-	bool			streaming;			//Part 2
+	ReadWavData mWavData;
 
-	float			freqRate;
-	double			length;
-	unsigned int	bitRate;
-	unsigned int	size;
-	unsigned int	channels;
+	bool			mStreaming;			//Part 2
 
-	static map<string, Sound*> sounds;
+
+	static map<string, Sound*> sSounds;
 
 
 };
