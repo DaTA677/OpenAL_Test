@@ -6,7 +6,8 @@
 #include<AL/alc.h>
 #include <string>
 #include "Sound.h"
-
+#include "SoundDevice.h"
+#include "SoundSource.h"
 
 #define OpenAL_ErrorCheck(message)\
 {\
@@ -23,18 +24,24 @@ OpenAL_ErrorCheck(FUNCTION_CALL)
 
 int main()
 {
+	//Setup Device and context
 
-	const ALCchar* defaultDeviceString = alcGetString(/*device*/ nullptr, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
-	ALCdevice* device = alcOpenDevice(defaultDeviceString);
-	if (!device) {
-		std::cerr << "Failed to get the Default device for OpenAL" << std::endl;
-	}
-	std::cout << "OpenAL Device: " << alcGetString(device, ALC_DEVICE_SPECIFIER) << std::endl;
+	//const ALCchar* defaultDeviceString = alcGetString(/*device*/ nullptr, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
+	//ALCdevice* device = alcOpenDevice(defaultDeviceString);
+	//if (!device) {
+	//	std::cerr << "Failed to get the Default device for OpenAL" << std::endl;
+	//}
+	//std::cout << "OpenAL Device: " << alcGetString(device, ALC_DEVICE_SPECIFIER) << std::endl;
 
-	ALCcontext* context = alcCreateContext(device, nullptr);
-	if (!alcMakeContextCurrent(context)) {
-		std::cerr << "Failed to make the OpenAL context the curent context" << std::endl;
-	}
+	//ALCcontext* context = alcCreateContext(device, nullptr);
+	//if (!alcMakeContextCurrent(context)) {
+	//	std::cerr << "Failed to make the OpenAL context the curent context" << std::endl;
+	//}
+	
+
+	SoundDevice* sd = SoundDevice::get();
+	
+	//Setup Listener
 
 	alec(alListener3f(AL_POSITION, 0.0f, 0.0f, 0.0f));
 	alec(alListener3f(AL_VELOCITY, 0.0f, 0.0f, 0.0f));
@@ -45,39 +52,39 @@ int main()
 
 	alec(alListenerfv(AL_ORIENTATION, forwardAndUpVectors));
 
+
+	//Load files
 	std::string name = "H:\\Solutions\\OpenAL-soft test\\Test\\Test_OpenAL\\Sounds\\coin21.wav";
-	std::string extension = name.substr(name.length() - 3, 3);
-	ALuint buffer = 0;
-	if (extension == "wav") {
-		Sound* s = new Sound();
-		s->LoadFromWAV(name);
-		alGenBuffers(1, &buffer);
-		alBufferData(buffer, s->GetOALFormat(), s->GetData(), s->GetSize(), (ALsizei)s->GetFrequency());
-	}
+	
+	ALuint buffer=Sound::AddSound(name);
+	
+
 	std::cout << "Hello World!\n";
 
-	ALuint monoSource;
 
-	alec(alGenSources(1, &monoSource));
-	//alec(alSource3f(monoSource, AL_POSITION, 1.0f, 0.0f, 0.0f));
-	//alec(alSource3f(monoSource, AL_VELOCITY, 0.0f, 0.0f, 0.0f));
-	alec(alSourcef(monoSource, AL_PITCH, 1.0f));
-	alec(alSourcef(monoSource, AL_GAIN, 1.0f));
-	alec(alSourcei(monoSource, AL_LOOPING, AL_TRUE));
-	alec(alSourcei(monoSource, AL_BUFFER, buffer));
+	//Setup Source
+
+	SoundSource* sn = new SoundSource();
 
 
-	alec(alSourcePlay(monoSource));
+	//ALuint monoSource;
 
-	std::string name1 = "H:\\Solutions\\OpenAL-soft test\\Test\\Test_OpenAL\\Sounds\\random1.wav";
+	//alec(alGenSources(1, &monoSource));
+	////alec(alSource3f(monoSource, AL_POSITION, 1.0f, 0.0f, 0.0f));
+	////alec(alSource3f(monoSource, AL_VELOCITY, 0.0f, 0.0f, 0.0f));
+	//alec(alSourcef(monoSource, AL_PITCH, 1.0f));
+	//alec(alSourcef(monoSource, AL_GAIN, 1.0f));
+	//alec(alSourcei(monoSource, AL_LOOPING, AL_TRUE));
+	//alec(alSourcei(monoSource, AL_BUFFER, buffer));
+
+	//Play source
+	sn->Play(buffer);
+	/*alec(alSourcePlay(monoSource));*/
+
+	/*std::string name1 = "H:\\Solutions\\OpenAL-soft test\\Test\\Test_OpenAL\\Sounds\\random1.wav";
 	std::string extension1 = name1.substr(name1.length() - 3, 3);
 	ALuint buffer1 = 1;
-	if (extension1 == "wav") {
-		Sound* s1 = new Sound();
-		s1->LoadFromWAV(name1);
-		alGenBuffers(1, &buffer1);
-		alBufferData(buffer1, s1->GetOALFormat(), s1->GetData(), s1->GetSize(), (ALsizei)s1->GetFrequency());
-	}
+	
 	std::cout << "Hello World1!\n";
 
 	ALuint monoSource1;
@@ -94,7 +101,7 @@ int main()
 	
 	ALint sourceState;
 	alec(alGetSourcei(monoSource, AL_SOURCE_STATE, &sourceState));
-	float speed = 0.0f;
+	float speed = 0.0f;*/
 	/*while (sourceState == AL_PLAYING) {
 		speed += 100.0f;
 		alec(alGetSourcei(monoSource, AL_SOURCE_STATE, &sourceState));
@@ -105,13 +112,15 @@ int main()
 	int i;
 	std::cin>>i;
 	std::cout<< "Played!\n";
-	alec(alDeleteSources(1, &monoSource));
-	alec(alDeleteBuffers(1, &buffer));
-	alec(alDeleteSources(1, &monoSource1));
-	alec(alDeleteBuffers(1, &buffer1));
-	alcMakeContextCurrent(nullptr);
-	alcDestroyContext(context);
-	alcCloseDevice(device);
+	//alec(alDeleteSources(1, &monoSource));
+	delete sn;
+	Sound::DeleteSounds();
+	//alec(alDeleteBuffers(1, &buffer));
+	/*alec(alDeleteSources(1, &monoSource1));
+	alec(alDeleteBuffers(1, &buffer1));*/
+	/*alcMakeContextCurrent(nullptr);*/
+	//alcDestroyContext(context);
+	//alcCloseDevice(device);
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
